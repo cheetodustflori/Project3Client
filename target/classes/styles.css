@@ -1,0 +1,50 @@
+/*
+blue: 0C558C
+green: D6E5D4
+dark green: 33550F
+brown: AF987B
+*/
+
+.root {
+    -fx-font-family: Arial;
+    -fx-background-color: #D6E5D4;
+    -fx-padding: 15px;
+    -fx-font-size: 24px;
+}
+
+.login-text {
+    -fx-text-alignment: left;
+}
+
+.login-textfield {
+    -fx-min-width: 300px;
+    -fx-max-width: 300px;
+    -fx-border-radius: 10px;
+    -fx-padding: 15px;
+    -fx-alignment: center;
+}
+
+.login-button {
+    -fx-max-width: 200px;
+    -fx-padding: 15px;
+    -fx-background-radius: 15px;
+    -fx-background-color: #33550F;
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+    -fx-cursor: pointer;
+}
+
+.create-account-link {
+    -fx-underline: true;
+    -fx-border: false;
+    -fx-background-color: transparent;
+    -fx-cursor: pointer;
+}
+
+.picnic-container {
+
+}
+
+.basket-container {
+
+}

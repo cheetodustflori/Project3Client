@@ -8,3 +8,4 @@ ui/GamePlay.class
 network/Client.class
 ui/Login.class
 ui/SignUp.class
+ui/SceneManager.class

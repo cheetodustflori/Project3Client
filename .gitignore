@@ -1,0 +1,9 @@
+# Build and IDE junk
+target/
+.idea/
+*.iml
+*.class
+
+# OS junk
+.DS_Store
+

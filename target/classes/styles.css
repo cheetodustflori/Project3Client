@@ -12,11 +12,13 @@ brown: AF987B
     -fx-font-size: 24px;
 }
 
-.login-text {
+.login-text,
+.signup-text {
     -fx-text-alignment: left;
 }
 
-.login-textfield {
+.login-textfield,
+.signup-textfield {
     -fx-min-width: 300px;
     -fx-max-width: 300px;
     -fx-border-radius: 10px;
@@ -34,17 +36,23 @@ brown: AF987B
     -fx-cursor: pointer;
 }
 
-.create-account-link {
+.create-account-link,
+.log-in-link {
     -fx-underline: true;
     -fx-border: false;
     -fx-background-color: transparent;
     -fx-cursor: pointer;
 }
 
-.picnic-container {
 
-}
+/* LOG IN */
 
-.basket-container {
-
+.signup-button {
+    -fx-max-width: 200px;
+    -fx-padding: 15px;
+    -fx-background-radius: 15px;
+    -fx-background-color: #0C558C;
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+    -fx-cursor: pointer;
 }

@@ -1,20 +1,15 @@
 package ui;
 
-import javafx.scene.Scene;
-
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.Parent;
 
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
 
@@ -25,20 +20,15 @@ import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 
 
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-
 public class Login {
 
-    private final Stage stage;
+//    private final Stage stage;
 
-    public Login(Stage primaryStage) {
-        this.stage = primaryStage;
+    public Login() {
+//        this.stage = primaryStage;
     }
 
-    public void show() {
+    public Parent getRoot() {
         Text usernameText = new Text("username");
         TextField username = new TextField();
         usernameText.getStyleClass().add("login-text");
@@ -53,8 +43,19 @@ public class Login {
         Button login = new Button("Log In");
         login.getStyleClass().add("login-button");
 
+        login.setOnAction(e -> {
+            Home home = new Home();
+            SceneManager.switchTo(home.getRoot());
+        });
+
         Text noAccount = new Text ("Don't have an account?");
         Button createAccount = new Button("Create Account Here.");
+
+        createAccount.setOnAction( e -> {
+            SignUp signup = new SignUp();
+            SceneManager.switchTo(signup.getRoot());
+        });
+
         createAccount.getStyleClass().add("create-account-link");
         VBox noAccountContainer = new VBox(noAccount,createAccount);
         noAccountContainer.setSpacing(5);
@@ -107,15 +108,16 @@ public class Login {
 
         imageLayer.getChildren().addAll(picnicContainer, basketContainer);
 
-
         StackPane root = new StackPane(loginContainer, imageLayer);
         root.setPrefSize(1280,832);
 
-        Scene scene = new Scene(root,1280,832);
-        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-        stage.setScene(scene);
-        stage.setTitle("Log In");
-        stage.show();
+//        Scene scene = new Scene(root,1280,832);
+        root.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+//        stage.setScene(scene);
+//        stage.setTitle("Log In");
+//        stage.show();
+
+        return root;
 
     }
 

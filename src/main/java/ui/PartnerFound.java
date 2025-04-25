@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 
-public class LoadGame {
-
+public class PartnerFound {
     private Image playerIcon;
 
     public void setPlayerIcon(Image icon){
@@ -28,42 +27,24 @@ public class LoadGame {
     }
 
     public Parent getRoot(){
-//        private Image playerIcon;
-//
-//        public void setPlayerIcon(Image icon) {
-//            this.playerIcon = icon;
-//        }
-
-
-        Text finding = new Text("Finding a partner for you...");
-        Image loading = new Image("/images/loading.png");
-        ImageView loadingContainer = new ImageView(loading);
+        Text found = new Text("Partner Found!\n" + "@other_username");
+        Text start = new Text("Starting game now...");
 
         Image logo = new Image("/images/logo.png", true);
         ImageView logoContainer = new ImageView(logo);
         logoContainer.getStyleClass().add("home-logo");
 
-        VBox findingContainer = new VBox(logoContainer, finding, loadingContainer);
+        VBox findingContainer = new VBox(logoContainer, found, start);
         findingContainer.setAlignment(Pos.CENTER);
         findingContainer.setSpacing(20);
-
-//         playerIcon
-
-        if (playerIcon != null) {
-            ImageView iconView = new ImageView(playerIcon);
-            iconView.setFitHeight(60);
-            iconView.setFitWidth(60);
-            findingContainer.getChildren().add(iconView);
-        }
-
 
         //        BUTTON
 
         Button next = new Button("next");
-        PartnerFound partnerFound = new PartnerFound();
-        partnerFound.setPlayerIcon(playerIcon);
+        GamePlay gamePlay = new GamePlay();
+        gamePlay.setPlayerIcon(playerIcon);
         next.setOnAction(e-> {
-            SceneManager.switchTo(partnerFound.getRoot());
+            SceneManager.switchTo(gamePlay.getRoot());
         });
 
 

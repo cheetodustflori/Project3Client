@@ -3,6 +3,7 @@ network/Message.class
 ui/Home.class
 ui/LoadGame.class
 GuiClient.class
+ui/PartnerFound.class
 ui/ChooseIcon.class
 ui/GamePlay.class
 network/Client.class

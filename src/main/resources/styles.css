@@ -3,12 +3,13 @@ blue: 0C558C
 green: D6E5D4
 dark green: 33550F
 brown: AF987B
+white: FFFFFF
 */
 
 .root {
     -fx-font-family: Arial;
     -fx-background-color: #D6E5D4;
-    -fx-padding: 15px;
+    /*-fx-padding: 15px;*/
     -fx-font-size: 24px;
 }
 
@@ -55,4 +56,87 @@ brown: AF987B
     -fx-text-fill: #ffffff;
     -fx-alignment: center;
     -fx-cursor: pointer;
+}
+
+/* HOME */
+
+.home-logo {
+    -fx-max-height: 50px;
+}
+
+.welcome-container {
+    -fx-background-color: white;
+    -fx-alignment: center;
+    -fx-padding: 30px;
+}
+
+.welcome-message,
+.welcome-username,
+.choose-message{
+    /*-fx-text-alignment: left;*/
+    -fx-fill: #33550F;
+    -fx-font-weight: bold;
+    -fx-font-size: 30px;
+    /*-fx-text-alignment: left;*/
+    -fx-font-style: italic;
+    -fx-text-alignment: left;
+}
+
+.welcome-message-container,
+.choose-message-container{
+    -fx-alignment: center;
+}
+
+.wins, .losses {
+    /*-fx-text-alignment: left;*/
+    /*-fx-alignment: left;*/
+    -fx-alignment: center;
+    -fx-padding: 15px;
+}
+
+
+.startGame-button,
+.done-button {
+    -fx-max-width: 300px;
+    -fx-padding: 15px;
+    -fx-background-radius: 15px;
+    -fx-background-color: #33550F;
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+    -fx-cursor: pointer;
+}
+
+.miniboard-container {
+    -fx-background-color: #D6E5D4;
+    -fx-alignment: center;
+    -fx-start-margin: 30px;
+    -fx-padding: 30px;
+}
+
+.miniboard-main-container {
+    -fx-padding: 50px;
+    -fx-padding-left: 100px;
+}
+
+/* ----- CHOOSE ICON -------- */
+
+.icon-grid {
+    -fx-alignment: center;
+    -fx-padding: 120px;
+}
+
+.stack-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+    -fx-alignment: center;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.stack-pane:hover {
+    -fx-cursor: hand;
+}
+
+.selected-icon {
+    -fx-background-color: #E9F0F4; /* Blue */
 }

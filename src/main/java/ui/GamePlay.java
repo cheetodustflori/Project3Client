@@ -168,7 +168,7 @@ public class GamePlay {
                     client.send("MOVE:" + col);
                 }
 
-                isMyTurn = false;
+//                isMyTurn = false;
                 break;
             }
         }

@@ -8,15 +8,15 @@ import java.net.Socket;
 
 public class Client extends Thread{
 
-	
-	Socket socketClient;
-	
-	ObjectOutputStream out;
-	ObjectInputStream in;
 
-	
+	Socket socketClient;
+
+	ObjectOutputStream out;
+	public ObjectInputStream in;
+
+
 	public void run() {
-		
+
 		try {
 			socketClient= new Socket("127.0.0.1",5555);
 	    	out = new ObjectOutputStream(socketClient.getOutputStream());
@@ -25,20 +25,20 @@ public class Client extends Thread{
 
 		}
 		catch(Exception e) {}
-		
+
 		while(true) {
-			 
+
 			try {
 				String message = in.readObject().toString();
 				System.out.println(message);
 			}
 			catch(Exception e) {}
 		}
-	
+
     }
-	
+
 	public void send(String data) {
-		
+
 		try {
 			out.writeObject(data);
 		} catch (IOException e) {

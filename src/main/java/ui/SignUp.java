@@ -24,7 +24,7 @@ import javafx.scene.image.ImageView;
 
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
-
+import network.Client;
 
 
 import java.time.LocalDateTime;
@@ -33,10 +33,10 @@ import java.util.ArrayList;
 
 public class SignUp {
 
-//    private final Stage stage;
+    private Client client;
 
-    public SignUp() {
-//        this.stage = primaryStage;
+    public SignUp(Client client) {
+        this.client = client;
     }
 
     public Parent getRoot() {
@@ -45,10 +45,9 @@ public class SignUp {
         usernameText.getStyleClass().add("signup-text");
         username.getStyleClass().add("signup-textfield");
 
-
         Text passwordText = new Text("create password");
         PasswordField password = new PasswordField();
-        passwordText.getStyleClass().add("singup-password-text");
+        passwordText.getStyleClass().add("signup-password-text");
         password.getStyleClass().add("signup-textfield");
 
         Button signup = new Button("Create Account");
@@ -62,7 +61,7 @@ public class SignUp {
         hasAccountContainer.setAlignment(Pos.CENTER);
 
         logIn.setOnAction( e -> {
-            Login login = new Login();
+            Login login = new Login(client);
             SceneManager.switchTo(login.getRoot());
         });
 

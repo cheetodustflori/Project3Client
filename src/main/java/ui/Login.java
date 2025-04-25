@@ -18,14 +18,15 @@ import javafx.scene.image.ImageView;
 
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
+import network.Client;
 
 
 public class Login {
 
-//    private final Stage stage;
+    private Client client;
 
-    public Login() {
-//        this.stage = primaryStage;
+    public Login(Client client) {
+        this.client = client;
     }
 
     public Parent getRoot() {
@@ -44,7 +45,14 @@ public class Login {
         login.getStyleClass().add("login-button");
 
         login.setOnAction(e -> {
-            Home home = new Home();
+            String usernameInput = username.getText().trim();
+            if (usernameInput.isEmpty()) {
+                usernameInput = "Guest";
+            }
+
+            client.send("USERNAME:" + usernameInput);
+
+            Home home = new Home(client);
             SceneManager.switchTo(home.getRoot());
         });
 
@@ -52,7 +60,7 @@ public class Login {
         Button createAccount = new Button("Create Account Here.");
 
         createAccount.setOnAction( e -> {
-            SignUp signup = new SignUp();
+            SignUp signup = new SignUp(client);
             SceneManager.switchTo(signup.getRoot());
         });
 
@@ -101,21 +109,15 @@ public class Login {
         loginContainer.setAlignment(Pos.CENTER);
         loginContainer.setSpacing(20);
 
-//        // Optional: Resize image
-//        imageView.setFitWidth(75);
-//        imageView.setFitHeight(75);
-//        imageView.setPreserveRatio(true);
+//        IMAGE LAYER
 
         imageLayer.getChildren().addAll(picnicContainer, basketContainer);
 
+//        ROOT
         StackPane root = new StackPane(loginContainer, imageLayer);
         root.setPrefSize(1280,832);
 
-//        Scene scene = new Scene(root,1280,832);
         root.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-//        stage.setScene(scene);
-//        stage.setTitle("Log In");
-//        stage.show();
 
         return root;
 

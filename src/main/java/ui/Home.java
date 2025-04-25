@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import network.Client;
 
 
 import java.time.LocalDateTime;
@@ -20,11 +21,13 @@ import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 
 public class Home {
-//    private final Stage stage;
 
-    public Home() {
-//        this.stage = primaryStage;
+    private Client client;
+
+    public Home(Client client) {
+        this.client = client;
     }
+
 
     public Parent getRoot() {
 
@@ -54,13 +57,13 @@ public class Home {
 //        EVENT HANDLER
 
         startGame.setOnAction(e-> {
-            ChooseIcon chooseIcon = new ChooseIcon();
+            ChooseIcon chooseIcon = new ChooseIcon(client);
             SceneManager.switchTo(chooseIcon.getRoot());
         });
 
         Button goBack = new Button("return");
         goBack.setOnAction(e-> {
-            Login login = new Login();
+            Login login = new Login(client);
             SceneManager.switchTo(login.getRoot());
         });
 

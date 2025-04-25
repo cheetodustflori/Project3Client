@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import network.Client;
 
 
 import java.time.LocalDateTime;
@@ -21,12 +22,19 @@ import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 public class ChooseIcon {
     private Image selectedIcon;
+    private Client client;
 
-    public ChooseIcon(){
-
+    public ChooseIcon(Client client) {
+        this.client = client;
     }
 
     public Parent getRoot(){
+
+        Text warningText = new Text("");
+        warningText.getStyleClass().add("warning-text"); // optional CSS class
+
+
+//        SETTING UP ICONS IMAGEVIEW
         Image apple = new Image("/images/apple.png", true);
         ImageView appleView = new ImageView(apple);
         appleView.setFitHeight(100);
@@ -81,7 +89,7 @@ public class ChooseIcon {
         starfruitView.setFitWidth(100);
         StackPane starfruitPane = new StackPane(starfruitView);
 
-// Add to list for event handling
+// EVENT HANDLING LIST
         ArrayList<StackPane> iconPanes = new ArrayList<>();
         iconPanes.add(applePane);
         iconPanes.add(mangoPane);
@@ -93,19 +101,17 @@ public class ChooseIcon {
         iconPanes.add(kiwiPane);
         iconPanes.add(starfruitPane);
 
-// Add click handlers to all icons
+// EVENT HANDLER: HIGHLIGHT ICON
         for (int i = 0; i < iconPanes.size(); i++) {
             final int index = i;
             StackPane pane = iconPanes.get(i);
             pane.setOnMouseClicked(event -> {
-                // Remove highlight from all
                 for (StackPane other : iconPanes) {
                     other.getStyleClass().remove("selected-icon");
                 }
-                // Highlight selected
+
                 pane.getStyleClass().add("selected-icon");
 
-                // Set selected image
                 switch (index) {
                     case 0 -> selectedIcon = apple;
                     case 1 -> selectedIcon = mango;
@@ -136,18 +142,18 @@ public class ChooseIcon {
         messageContainer.getStyleClass().add("choose-message-container");
 
 
-//        EVENT HANDLER
+//        EVENT HANDLER: DONE AND RETURN
 
         Button done = new Button("Done");
         done.getStyleClass().add("done-button");
 
         Button goBack = new Button("return");
-        Home home = new Home();
+        Home home = new Home(client);
         goBack.setOnAction(e-> {
             SceneManager.switchTo(home.getRoot());
         });
 
-        VBox welcomeContainer = new VBox(logoContainer, messageContainer,done, goBack);
+        VBox welcomeContainer = new VBox(logoContainer, messageContainer,done, warningText, goBack);
         welcomeContainer.setSpacing(30);
         welcomeContainer.setMinWidth(680);
         welcomeContainer.setMaxWidth(680);
@@ -183,18 +189,17 @@ public class ChooseIcon {
         VBox iconView = new VBox(iconGrid);
         iconView.setAlignment(Pos.CENTER);
 
-        //        EVENT HANDLER
+        //        EVENT HANDLER: PASS IMAGE
 
         done.setOnAction(e-> {
             if (selectedIcon != null) {
-                LoadGame loadGame = new LoadGame();
-                loadGame.setPlayerIcon(selectedIcon); // 🎯 pass the image here!
+                LoadGame loadGame = new LoadGame(client);
+                loadGame.setPlayerIcon(selectedIcon);
                 SceneManager.switchTo(loadGame.getRoot());
             } else {
-                System.out.println("Please select an icon first.");
+                warningText.setText("Please choose an icon first");
             }
         });
-
 
 //      HOME SCREEN
 

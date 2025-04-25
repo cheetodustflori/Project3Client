@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import network.Client;
 
 
 import java.time.LocalDateTime;
@@ -23,17 +24,17 @@ public class LoadGame {
 
     private Image playerIcon;
 
+    private Client client;
+
+    public LoadGame(Client client) {
+        this.client = client;
+    }
+
     public void setPlayerIcon(Image icon){
         this.playerIcon = icon;
     }
 
     public Parent getRoot(){
-//        private Image playerIcon;
-//
-//        public void setPlayerIcon(Image icon) {
-//            this.playerIcon = icon;
-//        }
-
 
         Text finding = new Text("Finding a partner for you...");
         Image loading = new Image("/images/loading.png");
@@ -47,20 +48,21 @@ public class LoadGame {
         findingContainer.setAlignment(Pos.CENTER);
         findingContainer.setSpacing(20);
 
-//         playerIcon
+//        SHOW PLAYER ICON
 
         if (playerIcon != null) {
             ImageView iconView = new ImageView(playerIcon);
             iconView.setFitHeight(60);
             iconView.setFitWidth(60);
             findingContainer.getChildren().add(iconView);
+            findingContainer.setSpacing(20);
         }
 
 
-        //        BUTTON
+        //   EVENT HANDLER: NEXT PAGE
 
         Button next = new Button("next");
-        PartnerFound partnerFound = new PartnerFound();
+        PartnerFound partnerFound = new PartnerFound(client);
         partnerFound.setPlayerIcon(playerIcon);
         next.setOnAction(e-> {
             SceneManager.switchTo(partnerFound.getRoot());

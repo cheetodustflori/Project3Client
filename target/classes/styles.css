@@ -4,6 +4,7 @@ green: D6E5D4
 dark green: 33550F
 brown: AF987B
 white: FFFFFF
+light gray: F7F7F7
 */
 
 .root {
@@ -138,5 +139,45 @@ white: FFFFFF
 }
 
 .selected-icon {
-    -fx-background-color: #E9F0F4; /* Blue */
+    -fx-background-color: #F5D073;
+}
+
+.warning-text {
+    -fx-background-color: #FF0000;
+    -fx-font-weight: bold;
+}
+
+
+/* GAMEPLAY */
+
+.title-container {
+    /*-fx-padding: 50px;*/
+}
+
+.left-column {
+    /*-fx-border-color: #D6E5D4;*/
+    /*-fx-border-width: 1px;*/
+}
+
+.left-column,
+.game-page {
+    -fx-background-color: white;
+}
+
+.board-grid {
+    -fx-background-color: #AF987B;
+    -fx-border-radius: 1px;
+    -fx-border-color: #AF987B;
+    /*-fx-border-width: .5px;*/
+}
+
+.board-view {
+    -fx-background-color: #ffffff;
+}
+
+.chat {
+    -fx-background-color: #F7F7F7;
+    -fx-border-color: #D6E5D4;
+    -fx-border-width: 3px;
+    -fx-padding: 10px;
 }

@@ -5,8 +5,11 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 
+import network.Client;
 import ui.Login;
 import ui.SceneManager;
+
+import java.util.Scanner;
 
 public class GuiClient extends Application {
 
@@ -17,8 +20,11 @@ public class GuiClient extends Application {
         SceneManager.setStage(primaryStage);
         primaryStage.setScene(scene);
 
+        Client client = new Client();
+        client.start();
 
-        Login login = new Login();
+
+        Login login = new Login(client);
         SceneManager.switchTo(login.getRoot());
 
 //        primaryStage.setScene(new Scene(new TextField("I am not yet implemented")));
@@ -37,7 +43,7 @@ public class GuiClient extends Application {
 //            String x = s.next();
 //            clientThread.send(x);
 //        }
-
+//
         launch(args);
 
 

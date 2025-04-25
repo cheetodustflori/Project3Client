@@ -2,6 +2,7 @@ package ui;
 
 import javafx.application.Application;
 
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
@@ -23,12 +24,11 @@ import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 
 public class GamePlay {
-    private boolean isMyTurn = false;
+    private boolean isMyTurn = true;
     private boolean isPlayer1 = false;
     private Client client;
     private Image player1Icon;
     private Image player2Icon;
-
 
     int rows = 6;
     int cols = 6;
@@ -36,9 +36,11 @@ public class GamePlay {
     int[][] boardState = new int[rows][cols];
     private StackPane[][] cellGrid = new StackPane[rows][cols];
 
-    boolean isRedTurn = true;
-
     private Image playerIcon;
+
+    public GamePlay(Client client) {
+        this.client = client;
+    }
 
     public void setClientAndIcons(Client client, boolean isPlayer1, Image player1Icon, Image player2Icon) {
         this.client = client;
@@ -48,10 +50,8 @@ public class GamePlay {
         this.playerIcon = isPlayer1 ? player1Icon : player2Icon;
         this.isMyTurn = isPlayer1;
 
-        // Start listening for opponent's moves
         listenForMoves();
     }
-
 
     public void setPlayerIcon(Image icon) {
         this.playerIcon = icon;
@@ -61,32 +61,63 @@ public class GamePlay {
 
             Image title = new Image("/images/logo.png", true);
             ImageView titleContainer = new ImageView(title);
-            Image board = new Image("/images/board.png", true);
-            ImageView boardContainer = new ImageView(board);
+            titleContainer.setFitWidth(180);
+            titleContainer.setFitHeight(100);
+            VBox.setMargin(titleContainer, new Insets(50, 0, 0, 0)); // top, right, bottom, left
 
-            VBox leftColumn = new VBox(titleContainer);
+
+        VBox leftColumn = new VBox(titleContainer);
+            leftColumn.getStyleClass().add("left-column");
             leftColumn.setAlignment(Pos.TOP_CENTER);
             leftColumn.setSpacing(20);
-            leftColumn.setPrefWidth(200);
+            leftColumn.setMinWidth(200);
+            leftColumn.setMaxWidth(200);
 
             VBox chat = new VBox(new Text("Chat coming soon..."));
+            chat.getStyleClass().add("chat");
             chat.setAlignment(Pos.CENTER);
-            chat.setPrefWidth(200);
+            chat.setPrefWidth(300);
+            chat.setMinWidth(300);
 
             GridPane boardGrid = createBoardGrid();
-            VBox boardView = new VBox(boardGrid);
+            boardGrid.getStyleClass().add("board-grid");
+
+            Text playerOneYou = new Text("Player One (You)");
+            ImageView player1IconView = new ImageView(player1Icon);
+            HBox player1 = new HBox(playerOneYou, player1IconView);
+
+            Text playerTwo = new Text("Player Two (@other_username)");
+            ImageView player2IconView = new ImageView(player2Icon);
+            HBox player2 = new HBox(playerTwo, player2IconView);
+
+            HBox playerNames = new HBox(player1, player2);
+
+            Text playerTurn = new Text("@other_username's Turn");
+            VBox boardView = new VBox(playerTurn, boardGrid, playerNames);
+            boardView.getStyleClass().add("board-view");
             boardView.setAlignment(Pos.CENTER);
-            boardView.setPrefWidth(600);
+            boardView.setPrefWidth(580);
+
+            HBox.setHgrow(leftColumn, Priority.ALWAYS);
+            HBox.setHgrow(chat, Priority.ALWAYS);
+            HBox.setHgrow(boardView, Priority.NEVER);
 
             HBox gamePage = new HBox(leftColumn, boardView, chat);
+
+            gamePage.getStyleClass().add("game-page");
             gamePage.setSpacing(20);
             gamePage.setAlignment(Pos.CENTER);
 
-            return new StackPane(gamePage);
+//            ROOT
+            StackPane root = new StackPane(gamePage);
+            root.setPrefSize(1280,832);
+            root.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            return root;
     }
 
     private GridPane createBoardGrid() {
         GridPane boardGrid = new GridPane();
+
         boardGrid.setAlignment(Pos.CENTER);
         boardGrid.setHgap(10);
         boardGrid.setVgap(10);
@@ -95,7 +126,7 @@ public class GamePlay {
             for (int col = 0; col < cols; col++) {
                 Circle circle = new Circle(30);
                 circle.setFill(javafx.scene.paint.Color.TRANSPARENT);
-                circle.setStroke(javafx.scene.paint.Color.BLACK);
+                circle.setStroke(javafx.scene.paint.Color.WHITE);
                 coinGrid[row][col] = circle;
 
                 StackPane cell = new StackPane(circle);
@@ -180,8 +211,6 @@ public class GamePlay {
             }
         }
     }
-
-
 
 
 //    public class chatWindow(){

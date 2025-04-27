@@ -1,9 +1,14 @@
 package network;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+
 import javafx.application.Platform;
 import ui.GamePlay;
 import ui.PartnerFound;
 import ui.SceneManager;
+import ui.Home;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -79,6 +84,18 @@ public class Client extends Thread {
 						}
 					});
 				}
+				else if (msg.getType().equals("gameOver")) {
+					String result = (String) msg.getContent();
+
+					Platform.runLater(() -> {
+						boolean playAgain = showPlayAgainDialog(result);
+
+						if (!playAgain) {
+							sendMessage(new Message("gameOver", "Game Over", player.getUsername(), null));
+							SceneManager.switchTo(new Home(player, this).getRoot());
+						}
+					});
+				}
 
 
 			} catch (Exception e) {
@@ -121,4 +138,30 @@ public class Client extends Thread {
 	}
 
 	public int getClientCount(){return clientCount;}
+
+	public boolean showPlayAgainDialog(String result) {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Game Over");
+		alert.setHeaderText("Game Over - " + result);
+		alert.setContentText("Would you like to play again?");
+
+		ButtonType playAgainButton = new ButtonType("Play Again");
+		ButtonType quitButton = new ButtonType("Quit");
+
+		alert.getButtonTypes().setAll(playAgainButton, quitButton);
+
+		alert.showAndWait().ifPresent(response -> {
+			if (response == playAgainButton) {
+				resetGame();
+			}
+		});
+
+		return false;
+	}
+
+	private void resetGame() {
+		if (gamePlay != null) {
+			gamePlay.resetGame();
+		}
+	}
 }

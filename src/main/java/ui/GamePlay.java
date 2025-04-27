@@ -48,11 +48,126 @@ public class GamePlay {
 
     Text playerTurnText = new Text("");
 
+    public int[][] getBoardState() {
+        return this.boardState;
+    }
+
     public void updateBoard(int[][] newBoard){
         player1.setIsTurn(true);
         System.out.print(player1 + " inside update board");
         this.boardState = newBoard;
         redrawBoard();
+
+        Player currentPlayer = player1.getIsTurn() ? player1 : player2;
+
+        if (checkWin(currentPlayer)){
+            String winner = currentPlayer.getUsername();
+            player1.setGameStatus(winner.equals(player1.getUsername()) ? "win" : "lose");
+            player2.setGameStatus(winner.equals(player2.getUsername()) ? "win" : "lose");
+
+            client.sendMessage(new Message("gameOver", winner + " wins!", player1.getUsername(), player2.getUsername()));
+        }
+        else if (checkTie()) {
+            player1.setGameStatus("tie");
+            player2.setGameStatus("tie");
+
+            client.sendMessage(new Message("gameOver", "It's a tie!", player1.getUsername(), player2.getUsername()));
+        }
+    }
+
+    public boolean isValidLocation(int row, int col){
+        if (row < 0 || row >= rows || col < 0 || col >= cols){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isVerticalWin(int turn, int row, int col){
+        for (int i = 0; i < 4; i++){
+            int curRow = row + i;
+            int curCol = col;
+            if (!isValidLocation(curRow, curCol)){
+                return false;
+            }
+            if (boardState[curRow][curCol] != turn) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isHorizontalWin(int turn, int row, int col){
+        for (int i = 0; i < 4; i++){
+            int curRow = row;
+            int curCol = col + i;
+            if (!isValidLocation(curRow, curCol)){
+                return false;
+            }
+            if (boardState[curRow][curCol] != turn) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isUpRightWin(int turn, int row, int col){
+        for (int i = 0; i < 4; i++){
+            int curRow = row - i;
+            int curCol = col + i;
+            if (!isValidLocation(curRow, curCol)){
+                return false;
+            }
+            if (boardState[curRow][curCol] != turn) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isDownRightWin(int turn, int row, int col){
+        for (int i = 0; i < 4; i++){
+            int curRow = row + i;
+            int curCol = col + i;
+            if (!isValidLocation(curRow, curCol)){
+                return false;
+            }
+            if (boardState[curRow][curCol] != turn) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean checkWin(Player player) {
+        int turn = player1.getIsTurn() ? 1 : 2;
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (isVerticalWin(turn, row, col)) {
+                    return true;
+                }
+                else if (isHorizontalWin(turn, row, col)) {
+                    return true;
+                }
+                else if (isUpRightWin(turn, row, col)) {
+                    return true;
+                }
+                else if (isDownRightWin(turn, row, col)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean checkTie() {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (boardState[row][col] == 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void redrawBoard() {
@@ -154,6 +269,19 @@ public class GamePlay {
         return boardGrid;
     }
 
+    public void resetGame() {
+        for (int row = 0; row < 6; row++) {
+            for (int col = 0; col < 7; col++) {
+                boardState[row][col] = 0;
+            }
+        }
+
+        player1.setIsTurn(true);
+        player2.setIsTurn(false);
+
+        client.sendMessage(new Message("boardUpdate", boardState, player1.getUsername(), null));
+    }
+
     public GamePlay(Player player1, Player player2, Client client){
         this.player1 = player1;
         this.player2 = player2;
@@ -164,6 +292,14 @@ public class GamePlay {
         System.out.println(player1.getIsTurn());
         System.out.println(player2.getIsTurn());
         this.client = client;
+
+        // Initialize boardState to 0 when the game starts
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                boardState[row][col] = 0;
+            }
+        }
+
         client.sendMessage(new Message("boardUpdate", boardState, player1.getUsername(), null));
     }
 

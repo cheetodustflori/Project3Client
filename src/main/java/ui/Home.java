@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
 import network.Message;
+import network.MessageType;
 import network.Player;
 import ui.ChooseIcon;
 
@@ -64,7 +65,7 @@ public class Home {
         startGame.setOnAction(e-> {
             ChooseIcon chooseIcon = new ChooseIcon(player, client);
             String updateMessage = player.getUsername() + " clicked on start game";
-            client.sendMessage(new Message("clientUpdate",updateMessage));
+            client.sendMessage(new Message(MessageType.TEXT,updateMessage));
             SceneManager.switchTo(chooseIcon.getRoot());
         });
 

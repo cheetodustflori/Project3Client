@@ -23,6 +23,7 @@ import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import network.Client;
 import network.Message;
+import network.MessageType;
 import network.Player;
 
 
@@ -84,7 +85,7 @@ public class Login {
             Player newPlayer = new Player(usernameInput, 0, imgPath, "not-started", false);
             client.setPlayer(newPlayer);
             String updateMessage = usernameInput + " has logged in";
-            client.sendMessage(new Message("usernameCheck",updateMessage));
+            client.sendMessage(new Message(MessageType.USERNAMECHECK,updateMessage));
 
         });
 
@@ -94,7 +95,7 @@ public class Login {
         createAccount.setOnAction( e -> {
             SignUp signup = new SignUp(player, client);
             String updateMessage = "User navigated to create account";
-            client.sendMessage(new Message("clientUpdate",updateMessage));
+            client.sendMessage(new Message(MessageType.TEXT,updateMessage));
             SceneManager.switchTo(signup.getRoot());
 
         });
@@ -140,7 +141,7 @@ public class Login {
         passwordContainer.setAlignment(Pos.CENTER);
         passwordContainer.setSpacing(5);
 
-        VBox loginContainer = new VBox(titleContainer, errorLabel, usernameContainer,passwordContainer,login,noAccountContainer);
+        VBox loginContainer = new VBox(titleContainer, errorLabel, usernameContainer,login,noAccountContainer);
         loginContainer.setAlignment(Pos.CENTER);
         loginContainer.setSpacing(20);
 

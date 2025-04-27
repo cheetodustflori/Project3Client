@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
 import network.Message;
+import network.MessageType;
 import network.Player;
 
 
@@ -133,7 +134,7 @@ public class ChooseIcon {
                 String selectedIconPath = "/images/" + selectedIcon + ".png";
                 player.setIcon(selectedIconPath);
                 String updateMessage = player.getUsername() + " clicked the icon " + selectedIcon.toString();
-                client.sendMessage(new Message("clientUpdate",updateMessage));
+                client.sendMessage(new Message(MessageType.TEXT,updateMessage));
             });
         }
 
@@ -205,7 +206,7 @@ public class ChooseIcon {
         done.setOnAction(e-> {
             if (selectedIcon != null) {
                 String updateMessage = player.getUsername() + " chose the final icon " + selectedIcon.toString();
-                client.sendMessage(new Message("clientUpdate",updateMessage));
+                client.sendMessage(new Message(MessageType.TEXT,updateMessage));
                 client.sendPlayer(player);
                 LoadGame loadGame = new LoadGame(player, client);
                 SceneManager.switchTo(loadGame.getRoot());

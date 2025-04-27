@@ -3,10 +3,12 @@ network/Message.class
 ui/Home.class
 ui/LoadGame.class
 GuiClient.class
+network/Client$1.class
 ui/PartnerFound.class
 ui/ChooseIcon.class
 ui/GamePlay.class
 network/Client.class
+network/MessageType.class
 ui/Login.class
 ui/SignUp.class
 ui/SceneManager.class

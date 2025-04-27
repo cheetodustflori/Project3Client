@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+
 public class Client extends Thread {
 
 	private Socket socketClient;
@@ -35,7 +36,7 @@ public class Client extends Thread {
 		this.loginPage = loginPage;
 	}
 
-//	RUN
+	//	RUN
 	public void run() {
 		try {
 			socketClient = new Socket("127.0.0.1", 5555);
@@ -49,65 +50,79 @@ public class Client extends Thread {
 		while (true) {
 			try {
 				Message msg = (Message) in.readObject();
-//				callback.accept(msg.toString());
 
-//				if (msg.getType().equals("boardUpdate")) {
-//					int[][] board = (int[][]) msg.getContent();
-//					if (gamePlay != null) {
-//						Platform.runLater(() -> gamePlay.updateBoard(board));
-//					}
-//				}
-				if (msg.getType().equals("partnerFound")) {
-					Platform.runLater(() -> {
-						ArrayList<Player> matchedPlayers = (ArrayList<Player>) msg.getContent();
-						Player playerA = matchedPlayers.get(0);
-						Player playerB = matchedPlayers.get(1);
-						// Identify myself
-						Player me = (player.getUsername().equals(playerA.getUsername())) ? playerA : playerB;
-						Player opponent = (me == playerA) ? playerB : playerA;
+				if (msg == null || msg.getType() == null) continue; // Safeguard
 
-						// Always set myself to start turn = true
-//						me.setIsTurn(true);
-//						opponent.setIsTurn(false);
+				switch (msg.getType()) {
+					case PARTNERFOUND:
+						Platform.runLater(() -> {
+							ArrayList<Player> matchedPlayers = (ArrayList<Player>) msg.getContent();
+							Player playerA = matchedPlayers.get(0);
+							Player playerB = matchedPlayers.get(1);
 
-						PartnerFound partnerFound = new PartnerFound(me, opponent, this);
-						SceneManager.switchTo(partnerFound.getRoot());
-					});
-				}
-				else if (msg.getType().equals("move")) {
-					int[] move = (int[]) msg.getContent();
-					int row = move[0];
-					int col = move[1];
-					String playerWhoMoved = msg.getSender();
-					System.out.print(playerWhoMoved);
-					Platform.runLater(() -> {
-						gamePlay.updateBoardCell(row,col,playerWhoMoved);
-					});
-				}
-				else if(msg.getType().equals("yourTurn")){
-					boolean isMyTurn = (Boolean)msg.getContent();
-					gamePlay.setMyTurn(isMyTurn);
-					System.out.println("YOUR TURN");
-				}
-				else if(msg.getType().equals("loginError")){
-					String message = msg.getContent().toString();
-					if(loginPage != null){
-						loginPage.showError(message);
-					}
-				}
-				else if(msg.getType().equals("loginSuccess")){
-					Platform.runLater(() -> {
-						Home home = new Home(player, this);
-						SceneManager.switchTo(home.getRoot());
-					});
-				}
+							Player me = (player.getUsername().equals(playerA.getUsername())) ? playerA : playerB;
+							Player opponent = (me == playerA) ? playerB : playerA;
 
+							PartnerFound partnerFound = new PartnerFound(me, opponent, this);
+							SceneManager.switchTo(partnerFound.getRoot());
+						});
+						break;
+
+					case UPDATEMOVE: // (Previously your "move" handler)
+						int[] move = (int[]) msg.getContent();
+						int row = move[0];
+						int col = move[1];
+						String playerWhoMoved = msg.getSender();
+						System.out.println(playerWhoMoved);
+						Platform.runLater(() -> {
+							gamePlay.updateBoardCell(row, col, playerWhoMoved);
+						});
+						break;
+
+					case YOURTURN:
+						boolean isMyTurn = (Boolean) msg.getContent();
+						gamePlay.setMyTurn(isMyTurn);
+						System.out.println("YOUR TURN");
+						break;
+
+					case LOGINERROR:
+						String errorMsg = msg.getContent().toString();
+						if (loginPage != null) {
+							Platform.runLater(() -> {
+								loginPage.showError(errorMsg);
+							});
+						}
+						break;
+
+					case LOGINSUCCESS:
+						Platform.runLater(() -> {
+							Home home = new Home(player, this);
+							SceneManager.switchTo(home.getRoot());
+						});
+						break;
+
+					case CHAT:
+						String sender = msg.getSender();
+						String text = msg.getContent().toString();
+						if (gamePlay != null) {
+							System.out.println("TESTING IN CHAT CLIENT");
+							gamePlay.addChatMessage(sender + ": " + text);
+						}
+						break;
+
+
+
+
+					default:
+						System.out.println("Unknown message type received: " + msg.getType());
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
+
 
 	// Methods to send messages
 	public void sendMessage(Message message) {
@@ -121,7 +136,7 @@ public class Client extends Thread {
 
 	public void sendPlayer(Player player) {
 		try {
-			Message playerInfo = new Message("playerInfo", player, player.getUsername(), null);
+			Message playerInfo = new Message(MessageType.PLAYERINFO, player, player.getUsername(), null);
 			out.writeObject(playerInfo);
 			out.flush();
 		} catch (IOException e) {

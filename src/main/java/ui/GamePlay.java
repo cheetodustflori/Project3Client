@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
@@ -18,6 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
 import network.Message;
+import network.MessageType;
 import network.Player;
 
 
@@ -39,6 +41,9 @@ public class GamePlay {
     private StackPane[][] cellGrid = new StackPane[rows][cols];
     private GridPane board;
 
+    private VBox chatBox = new VBox();  // this holds all messages
+    private TextField chatInput = new TextField();  // user types here
+    private Button sendButton = new Button("Send");
 
     // DEFAULT IMAGE VALUES
     private Image playerIcon1 = new Image("images/apple.png");
@@ -54,6 +59,12 @@ public class GamePlay {
 //        this.boardState = newBoard;
 //        redrawBoard(row);
 //    }
+
+    public void addChatMessage(String text) {
+        Text messageText = new Text(text);
+        chatBox.getChildren().add(messageText);
+    }
+
 
     private boolean myTurn = false;
     public void setMyTurn(boolean turn){
@@ -112,8 +123,8 @@ public class GamePlay {
             }
         }
         String updateMessage = player1.getUsername() + " made the move to row: " + row + " col: " + col;
-        client.sendMessage(new Message("clientUpdate", updateMessage));
-        client.sendMessage(new Message("move", playerMove, player1.getUsername(), null));
+        client.sendMessage(new Message(MessageType.TEXT, updateMessage));
+        client.sendMessage(new Message(MessageType.GAMEMOVE, playerMove, player1.getUsername(), null));
 
     }
 
@@ -180,7 +191,7 @@ public class GamePlay {
         System.out.println(player1.getIsTurn());
         System.out.println(player2.getIsTurn());
         this.client = client;
-        client.sendMessage(new Message("boardUpdate", boardState, player1.getUsername(), null));
+        client.sendMessage(new Message(MessageType.BOARDUPDATE, boardState, player1.getUsername(), null));
     }
 
     public Parent getRoot() {
@@ -199,11 +210,25 @@ public class GamePlay {
         leftColumn.setMinWidth(200);
         leftColumn.setMaxWidth(200);
 
-        VBox chat = new VBox(new Text("Chat"));
-        chat.getStyleClass().add("chat");
-        chat.setAlignment(Pos.CENTER);
-        chat.setPrefWidth(300);
-        chat.setMinWidth(300);
+        VBox chatContainer = new VBox(chatBox, chatInput, sendButton);
+        chatContainer.setAlignment(Pos.CENTER);
+        chatContainer.setSpacing(10);
+        chatContainer.setPrefWidth(300);
+
+        sendButton.setOnAction(e -> {
+            System.out.println("TESTING IN CHAT GAMEPLAY");
+            String text = chatInput.getText().trim();
+
+            if (!text.isEmpty()) {
+                addChatMessage(text);
+                System.out.println("TESTING IN CHAT GAMEPLAY  IS EMPTY");
+                Message chatMessage = new Message(MessageType.CHAT, text, player1.getUsername(), null);
+                client.sendMessage(chatMessage);
+                chatInput.clear();  // clear text field
+            }
+        });
+
+
 
         GridPane boardGrid = createBoardGrid();
         boardGrid.getStyleClass().add("board-grid");
@@ -229,7 +254,7 @@ public class GamePlay {
         boardView.setPrefWidth(580);
 
 
-        HBox gamePage = new HBox(leftColumn, boardView, chat);
+        HBox gamePage = new HBox(leftColumn, boardView, chatContainer);
 
         gamePage.getStyleClass().add("game-page");
         gamePage.setSpacing(20);

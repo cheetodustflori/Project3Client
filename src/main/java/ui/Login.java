@@ -1,6 +1,9 @@
 package ui;
 
+import javafx.application.Platform;
+
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 
@@ -19,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import network.Client;
+import network.Message;
 import network.Player;
 
 
@@ -27,6 +31,7 @@ public class Login {
     private Client client;
     private Player player;
 
+
     public Login(Client client) {
         this.client = client;
     }
@@ -34,9 +39,24 @@ public class Login {
     public Login(Player player, Client client) {
         this.player = player;
         this.client = client;
+
+    }
+
+    private Label errorLabel = new Label("");
+
+    public void showError(String errorMsg){
+        Platform.runLater(() -> {
+            errorLabel.setText(errorMsg);
+            errorLabel.setStyle("-fx-text-fill: red");
+        });
     }
 
     public Parent getRoot() {
+
+        Text warningText = new Text("");
+        warningText.getStyleClass().add("warning-text");
+        warningText.setText("");
+
         Text usernameText = new Text("username");
         TextField username = new TextField();
         usernameText.getStyleClass().add("login-text");
@@ -60,13 +80,12 @@ public class Login {
 
             String imgPath = "/images/apple.png";
 
-
-//            Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String username, int column, ImageView icon, String gameStatus, Boolean isTurn
+//          String username, int column, ImageView icon, String gameStatus, Boolean isTurn
             Player newPlayer = new Player(usernameInput, 0, imgPath, "not-started", false);
             client.setPlayer(newPlayer);
+            String updateMessage = usernameInput + " has logged in";
+            client.sendMessage(new Message("usernameCheck",updateMessage));
 
-            Home home = new Home(newPlayer, client);
-            SceneManager.switchTo(home.getRoot());
         });
 
         Text noAccount = new Text ("Don't have an account?");
@@ -74,7 +93,10 @@ public class Login {
 
         createAccount.setOnAction( e -> {
             SignUp signup = new SignUp(player, client);
+            String updateMessage = "User navigated to create account";
+            client.sendMessage(new Message("clientUpdate",updateMessage));
             SceneManager.switchTo(signup.getRoot());
+
         });
 
         createAccount.getStyleClass().add("create-account-link");
@@ -118,7 +140,7 @@ public class Login {
         passwordContainer.setAlignment(Pos.CENTER);
         passwordContainer.setSpacing(5);
 
-        VBox loginContainer = new VBox(titleContainer, usernameContainer,passwordContainer,login,noAccountContainer);
+        VBox loginContainer = new VBox(titleContainer, errorLabel, usernameContainer,passwordContainer,login,noAccountContainer);
         loginContainer.setAlignment(Pos.CENTER);
         loginContainer.setSpacing(20);
 

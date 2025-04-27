@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
+import network.Message;
 import network.Player;
 import ui.ChooseIcon;
 
@@ -62,6 +63,8 @@ public class Home {
 
         startGame.setOnAction(e-> {
             ChooseIcon chooseIcon = new ChooseIcon(player, client);
+            String updateMessage = player.getUsername() + " clicked on start game";
+            client.sendMessage(new Message("clientUpdate",updateMessage));
             SceneManager.switchTo(chooseIcon.getRoot());
         });
 

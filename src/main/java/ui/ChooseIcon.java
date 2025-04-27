@@ -16,6 +16,7 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
+import network.Message;
 import network.Player;
 
 
@@ -131,6 +132,8 @@ public class ChooseIcon {
 
                 String selectedIconPath = "/images/" + selectedIcon + ".png";
                 player.setIcon(selectedIconPath);
+                String updateMessage = player.getUsername() + " clicked the icon " + selectedIcon.toString();
+                client.sendMessage(new Message("clientUpdate",updateMessage));
             });
         }
 
@@ -201,9 +204,12 @@ public class ChooseIcon {
 
         done.setOnAction(e-> {
             if (selectedIcon != null) {
+                String updateMessage = player.getUsername() + " chose the final icon " + selectedIcon.toString();
+                client.sendMessage(new Message("clientUpdate",updateMessage));
+                client.sendPlayer(player);
                 LoadGame loadGame = new LoadGame(player, client);
                 SceneManager.switchTo(loadGame.getRoot());
-                client.sendPlayer(player);
+
             } else {
                 warningText.setText("Please choose an icon first");
             }

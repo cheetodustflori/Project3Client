@@ -40,7 +40,7 @@ public class GamePlay {
     private GridPane board;
 
 
-
+    // DEFAULT IMAGE VALUES
     private Image playerIcon1 = new Image("images/apple.png");
     private ImageView playerIcon1View = new ImageView(playerIcon1);
     private Image playerIcon2 = new Image("images/apple.png");
@@ -48,44 +48,53 @@ public class GamePlay {
 
     Text playerTurnText = new Text("");
 
-    public void updateBoard(int[][] newBoard){
-        player1.setIsTurn(true);
-        System.out.print(player1 + " inside update board");
-        this.boardState = newBoard;
-        redrawBoard();
+//    public void updateBoard(int[][] newBoard){
+//        player1.setIsTurn(true);
+//        System.out.print(player1 + " inside update board");
+//        this.boardState = newBoard;
+//        redrawBoard(row);
+//    }
+
+    private boolean myTurn = false;
+    public void setMyTurn(boolean turn){
+        this.myTurn = turn;
     }
 
-    private void redrawBoard() {
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                cellGrid[row][col].getChildren().clear(); // Clear previous icons
+    public void updateBoardCell(int row, int col, String playerUsername){
+        boardState[row][col] = playerUsername.equals(player1.getUsername()) ? 1 : 2;
+        redrawBoard(row,col,playerUsername);
+    }
 
-                if (boardState[row][col] == 1) {
-                    ImageView icon = new ImageView(playerIcon1);
-                    icon.setFitHeight(60);
-                    icon.setFitWidth(60);
-                    cellGrid[row][col].getChildren().add(icon);
-                } else if (boardState[row][col] == 2) {
-                    ImageView icon = new ImageView(playerIcon2);
-                    icon.setFitHeight(60);
-                    icon.setFitWidth(60);
-                    cellGrid[row][col].getChildren().add(icon);
-                }
-            }
+    private void redrawBoard(int row, int col, String playerUsername) {
+        ImageView icon = new ImageView();
+        icon.setFitHeight(60);
+        icon.setFitWidth(60);
+        if(player1.getUsername().equals(playerUsername)){
+            icon = new ImageView(playerIcon1);
         }
+        else {
+            icon = new ImageView(playerIcon2);
+        }
+        Circle circle = coinGrid[row][col];
+        circle.setVisible(false);
+        cellGrid[row][col].getChildren().add(icon);
+        playerTurnText.setText("Your Turn");
     }
 
     private void handleMove(int col) {
-        if (!player1.getIsTurn()) {
+        int[] playerMove = new int[] {0,0};
+        if (!myTurn) {
             System.out.println("Not your turn!");
             return;
         }
 
-        for (int row = rows - 1; row >= 0; row--) {
+        int row;
+        for (row = rows - 1; row >= 0; row--) {
             if (boardState[row][col] == 0) {
                 boardState[row][col] = player1.getIsTurn() ? 1 : 2;
 
                 Circle circle = coinGrid[row][col];
+                playerMove = new int[] {row,col};
                 circle.setVisible(false);
 
                 ImageView icon = new ImageView(playerIcon1);
@@ -100,29 +109,30 @@ public class GamePlay {
                 break;
             }
         }
-        System.out.println("client board update");
-        client.sendMessage(new Message("move", col, player1.getUsername(), null));
+        String updateMessage = player1.getUsername() + " made the move to row: " + row + " col: " + col;
+        client.sendMessage(new Message("clientUpdate", updateMessage));
+        client.sendMessage(new Message("move", playerMove, player1.getUsername(), null));
 
     }
 
-    public void handleOpponentMove(int col) {
-        for (int row = rows - 1; row >= 0; row--) {
-            if (boardState[row][col] == 0) {
-                boardState[row][col] = 2; // Opponent's move
-                Circle circle = coinGrid[row][col];
-                circle.setVisible(false);
-
-                ImageView icon = new ImageView(playerIcon2); // opponent's icon
-                icon.setFitHeight(60);
-                icon.setFitWidth(60);
-                cellGrid[row][col].getChildren().add(icon);
-
-                player1.setIsTurn(true); // After opponent moves, it's now MY turn
-                playerTurnText.setText("Your Turn!");
-                break;
-            }
-        }
-    }
+//    public void handleOpponentMove(int col) {
+//        for (int row = rows - 1; row >= 0; row--) {
+//            if (boardState[row][col] == 0) {
+//                boardState[row][col] = 2; // Opponent's move
+//                Circle circle = coinGrid[row][col];
+//                circle.setVisible(false);
+//
+//                ImageView icon = new ImageView(playerIcon2); // opponent's icon
+//                icon.setFitHeight(60);
+//                icon.setFitWidth(60);
+//                cellGrid[row][col].getChildren().add(icon);
+//
+//                player1.setIsTurn(true); // After opponent moves, it's now MY turn
+//                playerTurnText.setText("Your Turn!");
+//                break;
+//            }
+//        }
+//    }
 
 
     private GridPane createBoardGrid() {
@@ -160,7 +170,11 @@ public class GamePlay {
         playerIcon1 = new Image(player1.getIcon());
         playerIcon2 = new Image(player1.getIcon());
         playerIcon1View = new ImageView(playerIcon1);
+        playerIcon1View.setFitHeight(70);
+        playerIcon1View.setFitWidth(70);
         playerIcon2View = new ImageView(playerIcon2);
+        playerIcon2View.setFitHeight(70);
+        playerIcon2View.setFitWidth(70);
         System.out.println(player1.getIsTurn());
         System.out.println(player2.getIsTurn());
         this.client = client;
@@ -183,7 +197,7 @@ public class GamePlay {
         leftColumn.setMinWidth(200);
         leftColumn.setMaxWidth(200);
 
-        VBox chat = new VBox(new Text("Chat coming soon..."));
+        VBox chat = new VBox(new Text("Chat"));
         chat.getStyleClass().add("chat");
         chat.setAlignment(Pos.CENTER);
         chat.setPrefWidth(300);
@@ -212,12 +226,8 @@ public class GamePlay {
         boardView.setAlignment(Pos.CENTER);
         boardView.setPrefWidth(580);
 
-        HBox.setHgrow(leftColumn, Priority.ALWAYS);
-        HBox.setHgrow(chat, Priority.ALWAYS);
-        HBox.setHgrow(boardView, Priority.NEVER);
 
         HBox gamePage = new HBox(leftColumn, boardView, chat);
-//        HBox gamePage = new HBox(leftColumn, chat);
 
         gamePage.getStyleClass().add("game-page");
         gamePage.setSpacing(20);

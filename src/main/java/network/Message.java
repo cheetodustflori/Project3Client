@@ -12,20 +12,26 @@ public class Message implements Serializable {
         message = input;
     }
 
+    private String type;         // "move", "chat", "boardUpdate"
+    private Object content;
+    private String sender;
+    private String receiver;
+
     public Message(String type, Object content, String sender, String receiver) {
         this.type = type;
         this.content = content;
         this.sender = sender;
         this.receiver = receiver;
     }
+
+    public Message(String type, Object content){
+        this.type = type;
+        this.content = content;
+    }
+
     public String toString(){
         return message;
     }
-
-    private String type;         // "move", "chat", "boardUpdate"
-    private Object content;
-    private String sender;
-    private String receiver;
 
     // Getters
     public String getType() {

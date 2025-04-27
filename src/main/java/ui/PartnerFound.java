@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
+import network.Player;
 
 
 import java.time.LocalDateTime;
@@ -22,14 +23,15 @@ import java.time.format.DateTimeFormatter;
 
 public class PartnerFound {
     private Image playerIcon;
-    private Client client;
+    private Player player;
+    private Player player2;
+    Client client;
 
-    public PartnerFound(Client client) {
+    public PartnerFound(Player player, Player player2, Client client) {
+        this.player = player;
+        this.player2 = player2;
+        playerIcon = new Image(player.getIcon());
         this.client = client;
-    }
-
-    public void setPlayerIcon(Image icon){
-        this.playerIcon = icon;
     }
 
     public Parent getRoot(){
@@ -57,9 +59,8 @@ public class PartnerFound {
         //      EVENT HANDLER: NEXT
 
         Button next = new Button("next");
-        GamePlay gamePlay = new GamePlay(client);
-        gamePlay.setPlayerIcon(playerIcon);
         next.setOnAction(e-> {
+            GamePlay gamePlay = new GamePlay(player, player2, client);
             SceneManager.switchTo(gamePlay.getRoot());
         });
 

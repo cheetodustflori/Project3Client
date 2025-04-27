@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
+import network.Player;
 
 
 import java.time.LocalDateTime;
@@ -23,15 +24,14 @@ import java.time.format.DateTimeFormatter;
 public class LoadGame {
 
     private Image playerIcon;
+    Client client;
 
-    private Client client;
+    private Player player;
 
-    public LoadGame(Client client) {
+    public LoadGame(Player player, Client client) {
+        this.player = player;
+        playerIcon = new Image(player.getIcon());
         this.client = client;
-    }
-
-    public void setPlayerIcon(Image icon){
-        this.playerIcon = icon;
     }
 
     public Parent getRoot(){
@@ -58,18 +58,7 @@ public class LoadGame {
             findingContainer.setSpacing(20);
         }
 
-
-        //   EVENT HANDLER: NEXT PAGE
-
-        Button next = new Button("next");
-        PartnerFound partnerFound = new PartnerFound(client);
-        partnerFound.setPlayerIcon(playerIcon);
-        next.setOnAction(e-> {
-            SceneManager.switchTo(partnerFound.getRoot());
-        });
-
-
-        VBox loadingScreen = new VBox(findingContainer, next);
+        VBox loadingScreen = new VBox(findingContainer);
         loadingScreen.setAlignment(Pos.CENTER);
 
 

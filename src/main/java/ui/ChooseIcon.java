@@ -1,5 +1,6 @@
 package ui;
 
+
 import javafx.application.Application;
 
 import javafx.scene.Parent;
@@ -15,16 +16,19 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
+import network.Player;
 
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 public class ChooseIcon {
-    private Image selectedIcon;
-    private Client client;
+    private String selectedIcon;
+    private Player player;
+    Client client;
 
-    public ChooseIcon(Client client) {
+    public ChooseIcon(Player player, Client client) {
+        this.player = player;
         this.client = client;
     }
 
@@ -113,16 +117,20 @@ public class ChooseIcon {
                 pane.getStyleClass().add("selected-icon");
 
                 switch (index) {
-                    case 0 -> selectedIcon = apple;
-                    case 1 -> selectedIcon = mango;
-                    case 2 -> selectedIcon = lemon;
-                    case 3 -> selectedIcon = blueberry;
-                    case 4 -> selectedIcon = orange;
-                    case 5 -> selectedIcon = strawberry;
-                    case 6 -> selectedIcon = dragonfruit;
-                    case 7 -> selectedIcon = kiwi;
-                    case 8 -> selectedIcon = starfruit;
+                    case 0 -> selectedIcon = "apple";
+                    case 1 -> selectedIcon = "mango";
+                    case 2 -> selectedIcon = "lemon";
+                    case 3 -> selectedIcon = "blueberry";
+                    case 4 -> selectedIcon = "orange";
+                    case 5 -> selectedIcon = "strawberry";
+                    case 6 -> selectedIcon = "dragonfruit";
+                    case 7 -> selectedIcon = "kiwi";
+                    case 8 -> selectedIcon = "starfruit";
                 }
+
+
+                String selectedIconPath = "/images/" + selectedIcon + ".png";
+                player.setIcon(selectedIconPath);
             });
         }
 
@@ -148,7 +156,7 @@ public class ChooseIcon {
         done.getStyleClass().add("done-button");
 
         Button goBack = new Button("return");
-        Home home = new Home(client);
+        Home home = new Home(player, client);
         goBack.setOnAction(e-> {
             SceneManager.switchTo(home.getRoot());
         });
@@ -193,9 +201,9 @@ public class ChooseIcon {
 
         done.setOnAction(e-> {
             if (selectedIcon != null) {
-                LoadGame loadGame = new LoadGame(client);
-                loadGame.setPlayerIcon(selectedIcon);
+                LoadGame loadGame = new LoadGame(player, client);
                 SceneManager.switchTo(loadGame.getRoot());
+                client.sendPlayer(player);
             } else {
                 warningText.setText("Please choose an icon first");
             }

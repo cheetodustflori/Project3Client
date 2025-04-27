@@ -17,103 +17,113 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
+import network.Message;
+import network.Player;
 
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 
+
 public class GamePlay {
-    private boolean isMyTurn = true;
-    private boolean isPlayer1 = false;
-    private Client client;
-    private Image player1Icon;
-    private Image player2Icon;
+    Player player1;
+    Player player2;
+    Client client;
 
     int rows = 6;
     int cols = 6;
+
     Circle[][] coinGrid = new Circle[rows][cols];
     int[][] boardState = new int[rows][cols];
     private StackPane[][] cellGrid = new StackPane[rows][cols];
+    private GridPane board;
 
-    private Image playerIcon;
 
-    public GamePlay(Client client) {
-        this.client = client;
+
+    private Image playerIcon1 = new Image("images/apple.png");
+    private ImageView playerIcon1View = new ImageView(playerIcon1);
+    private Image playerIcon2 = new Image("images/apple.png");
+    private ImageView playerIcon2View = new ImageView(playerIcon2);
+
+    Text playerTurnText = new Text("");
+
+    public void updateBoard(int[][] newBoard){
+        player1.setIsTurn(true);
+        System.out.print(player1 + " inside update board");
+        this.boardState = newBoard;
+        redrawBoard();
     }
 
-    public void setClientAndIcons(Client client, boolean isPlayer1, Image player1Icon, Image player2Icon) {
-        this.client = client;
-        this.isPlayer1 = isPlayer1;
-        this.player1Icon = player1Icon;
-        this.player2Icon = player2Icon;
-        this.playerIcon = isPlayer1 ? player1Icon : player2Icon;
-        this.isMyTurn = isPlayer1;
+    private void redrawBoard() {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                cellGrid[row][col].getChildren().clear(); // Clear previous icons
 
-        listenForMoves();
+                if (boardState[row][col] == 1) {
+                    ImageView icon = new ImageView(playerIcon1);
+                    icon.setFitHeight(60);
+                    icon.setFitWidth(60);
+                    cellGrid[row][col].getChildren().add(icon);
+                } else if (boardState[row][col] == 2) {
+                    ImageView icon = new ImageView(playerIcon2);
+                    icon.setFitHeight(60);
+                    icon.setFitWidth(60);
+                    cellGrid[row][col].getChildren().add(icon);
+                }
+            }
+        }
     }
 
-    public void setPlayerIcon(Image icon) {
-        this.playerIcon = icon;
+    private void handleMove(int col) {
+        if (!player1.getIsTurn()) {
+            System.out.println("Not your turn!");
+            return;
+        }
+
+        for (int row = rows - 1; row >= 0; row--) {
+            if (boardState[row][col] == 0) {
+                boardState[row][col] = player1.getIsTurn() ? 1 : 2;
+
+                Circle circle = coinGrid[row][col];
+                circle.setVisible(false);
+
+                ImageView icon = new ImageView(playerIcon1);
+                icon.setFitHeight(60);
+                icon.setFitWidth(60);
+                cellGrid[row][col].getChildren().add(icon);
+                player1.setIsTurn(false);
+                if (player2 != null) {
+                    player2.setIsTurn(true);
+                }
+                playerTurnText.setText(player2.getUsername() + "'s Turn");
+                break;
+            }
+        }
+        System.out.println("client board update");
+        client.sendMessage(new Message("move", col, player1.getUsername(), null));
+
     }
 
-    public Parent getRoot(){
+    public void handleOpponentMove(int col) {
+        for (int row = rows - 1; row >= 0; row--) {
+            if (boardState[row][col] == 0) {
+                boardState[row][col] = 2; // Opponent's move
+                Circle circle = coinGrid[row][col];
+                circle.setVisible(false);
 
-            Image title = new Image("/images/logo.png", true);
-            ImageView titleContainer = new ImageView(title);
-            titleContainer.setFitWidth(180);
-            titleContainer.setFitHeight(100);
-            VBox.setMargin(titleContainer, new Insets(50, 0, 0, 0)); // top, right, bottom, left
+                ImageView icon = new ImageView(playerIcon2); // opponent's icon
+                icon.setFitHeight(60);
+                icon.setFitWidth(60);
+                cellGrid[row][col].getChildren().add(icon);
 
-
-        VBox leftColumn = new VBox(titleContainer);
-            leftColumn.getStyleClass().add("left-column");
-            leftColumn.setAlignment(Pos.TOP_CENTER);
-            leftColumn.setSpacing(20);
-            leftColumn.setMinWidth(200);
-            leftColumn.setMaxWidth(200);
-
-            VBox chat = new VBox(new Text("Chat coming soon..."));
-            chat.getStyleClass().add("chat");
-            chat.setAlignment(Pos.CENTER);
-            chat.setPrefWidth(300);
-            chat.setMinWidth(300);
-
-            GridPane boardGrid = createBoardGrid();
-            boardGrid.getStyleClass().add("board-grid");
-
-            Text playerOneYou = new Text("Player One (You)");
-            ImageView player1IconView = new ImageView(player1Icon);
-            HBox player1 = new HBox(playerOneYou, player1IconView);
-
-            Text playerTwo = new Text("Player Two (@other_username)");
-            ImageView player2IconView = new ImageView(player2Icon);
-            HBox player2 = new HBox(playerTwo, player2IconView);
-
-            HBox playerNames = new HBox(player1, player2);
-
-            Text playerTurn = new Text("@other_username's Turn");
-            VBox boardView = new VBox(playerTurn, boardGrid, playerNames);
-            boardView.getStyleClass().add("board-view");
-            boardView.setAlignment(Pos.CENTER);
-            boardView.setPrefWidth(580);
-
-            HBox.setHgrow(leftColumn, Priority.ALWAYS);
-            HBox.setHgrow(chat, Priority.ALWAYS);
-            HBox.setHgrow(boardView, Priority.NEVER);
-
-            HBox gamePage = new HBox(leftColumn, boardView, chat);
-
-            gamePage.getStyleClass().add("game-page");
-            gamePage.setSpacing(20);
-            gamePage.setAlignment(Pos.CENTER);
-
-//            ROOT
-            StackPane root = new StackPane(gamePage);
-            root.setPrefSize(1280,832);
-            root.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-            return root;
+                player1.setIsTurn(true); // After opponent moves, it's now MY turn
+                playerTurnText.setText("Your Turn!");
+                break;
+            }
+        }
     }
+
 
     private GridPane createBoardGrid() {
         GridPane boardGrid = new GridPane();
@@ -130,11 +140,11 @@ public class GamePlay {
                 coinGrid[row][col] = circle;
 
                 StackPane cell = new StackPane(circle);
-                cell.setPrefSize(70, 70); // Optional: makes clicking easier
+                cell.setPrefSize(70, 70);
 
                 cellGrid[row][col] = cell;
 
-                int currentCol = col; // must be final or effectively final
+                int currentCol = col;
                 cell.setOnMouseClicked(e -> handleMove(currentCol));
 
                 boardGrid.add(cell, col, row);
@@ -144,76 +154,219 @@ public class GamePlay {
         return boardGrid;
     }
 
-    private void handleMove(int col) {
-        if (!isMyTurn) {
-            System.out.println("Not your turn!");
-            return;
-        }
-
-        for (int row = rows - 1; row >= 0; row--) {
-            if (boardState[row][col] == 0) {
-                boardState[row][col] = isPlayer1 ? 1 : 2;
-
-                // Update GUI
-                Circle circle = coinGrid[row][col];
-                circle.setVisible(false);
-
-                ImageView icon = new ImageView(playerIcon);
-                icon.setFitHeight(60);
-                icon.setFitWidth(60);
-                cellGrid[row][col].getChildren().add(icon);
-
-                // Send move to opponent
-                if (client != null) {
-                    client.send("MOVE:" + col);
-                }
-
-//                isMyTurn = false;
-                break;
-            }
-        }
+    public GamePlay(Player player1, Player player2, Client client){
+        this.player1 = player1;
+        this.player2 = player2;
+        playerIcon1 = new Image(player1.getIcon());
+        playerIcon2 = new Image(player1.getIcon());
+        playerIcon1View = new ImageView(playerIcon1);
+        playerIcon2View = new ImageView(playerIcon2);
+        System.out.println(player1.getIsTurn());
+        System.out.println(player2.getIsTurn());
+        this.client = client;
+        client.sendMessage(new Message("boardUpdate", boardState, player1.getUsername(), null));
     }
 
-    private void listenForMoves() {
-        Thread listener = new Thread(() -> {
-            while (true) {
-                try {
-                    String msg = client.in.readObject().toString();
-                    if (msg.startsWith("MOVE:")) {
-                        int col = Integer.parseInt(msg.split(":")[1]);
-                        handleOpponentMove(col);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        listener.setDaemon(true);
-        listener.start();
-    }
+    public Parent getRoot() {
+
+        Image title = new Image("/images/logo.png", true);
+        ImageView titleContainer = new ImageView(title);
+        titleContainer.setFitWidth(180);
+        titleContainer.setFitHeight(100);
+        VBox.setMargin(titleContainer, new Insets(50, 0, 0, 0)); // top, right, bottom, left
 
 
-    private void handleOpponentMove(int col) {
-        for (int row = rows - 1; row >= 0; row--) {
-            if (boardState[row][col] == 0) {
-                boardState[row][col] = isPlayer1 ? 2 : 1;
+        VBox leftColumn = new VBox(titleContainer);
+        leftColumn.getStyleClass().add("left-column");
+        leftColumn.setAlignment(Pos.TOP_CENTER);
+        leftColumn.setSpacing(20);
+        leftColumn.setMinWidth(200);
+        leftColumn.setMaxWidth(200);
 
-                Circle circle = coinGrid[row][col];
-                circle.setVisible(false);
+        VBox chat = new VBox(new Text("Chat coming soon..."));
+        chat.getStyleClass().add("chat");
+        chat.setAlignment(Pos.CENTER);
+        chat.setPrefWidth(300);
+        chat.setMinWidth(300);
 
-                ImageView icon = new ImageView(isPlayer1 ? player2Icon : player1Icon);
-                icon.setFitHeight(60);
-                icon.setFitWidth(60);
-                cellGrid[row][col].getChildren().add(icon);
+        GridPane boardGrid = createBoardGrid();
+        boardGrid.getStyleClass().add("board-grid");
 
-                isMyTurn = true;
-                break;
-            }
+        Text playerOneYou = new Text("Player One (You)");
+
+        HBox player1Title = new HBox(playerOneYou, playerIcon1View);
+
+        String playerTwoName = (player2 != null) ? player2.getUsername() : "Waiting for Opponent";
+        Text playerTwo = new Text("Player Two: " + playerTwoName);
+        HBox player2Title = new HBox(playerTwo, playerIcon2View);
+
+        HBox playerNames = new HBox(player1Title, player2Title);
+
+        String playerTurn = "Your Turn";
+        if (!player1.getIsTurn()) {
+            playerTurn = (player2.getUsername() + "'s Turn");
         }
+        playerTurnText = new Text(playerTurn);
+        VBox boardView = new VBox(playerTurnText, boardGrid, playerNames);
+        boardView.getStyleClass().add("board-view");
+        boardView.setAlignment(Pos.CENTER);
+        boardView.setPrefWidth(580);
+
+        HBox.setHgrow(leftColumn, Priority.ALWAYS);
+        HBox.setHgrow(chat, Priority.ALWAYS);
+        HBox.setHgrow(boardView, Priority.NEVER);
+
+        HBox gamePage = new HBox(leftColumn, boardView, chat);
+//        HBox gamePage = new HBox(leftColumn, chat);
+
+        gamePage.getStyleClass().add("game-page");
+        gamePage.setSpacing(20);
+        gamePage.setAlignment(Pos.CENTER);
+
+//            ROOT
+        StackPane root = new StackPane(gamePage);
+        root.setPrefSize(1280, 832);
+        root.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        return root;
     }
-
-
-//    public class chatWindow(){
-//
-//    }
 }
+
+
+
+//
+//public class GamePlay {
+//    int rows = 6;
+//    int cols = 6;
+//    Circle[][] coinGrid = new Circle[rows][cols];
+//    int[][] boardState = new int[rows][cols];
+//    private StackPane[][] cellGrid = new StackPane[rows][cols];
+//    private GridPane board;
+//
+//    private Image playerIcon1 = new Image("images/apple.png");
+//    private ImageView playerIcon1View = new ImageView(playerIcon1);
+//    private Image playerIcon2 = new Image("images/apple.png");
+//    private ImageView playerIcon2View = new ImageView(playerIcon2);
+//
+//    Player player1;
+//    Player player2;
+//
+//    Text playerTurnText = new Text("");
+//
+//
+//    public GamePlay(Player player1, Player player2) {
+//        this.player1 = player1;
+//        this.player2 = player2;
+//        playerIcon1 = player1.getIcon();
+//        playerIcon2 = player2.getIcon();
+//        playerIcon1View = new ImageView(playerIcon1);
+//        playerIcon2View = new ImageView(playerIcon2);
+//        board = createBoardGrid();
+//    }
+//
+//    public void updateBoard(int[][] newBoard){
+//        player1.setIsTurn(true);
+//        System.out.print(player1 + " inside update board");
+//        this.boardState = newBoard;
+//        redrawBoard();
+//    }
+//
+//
+
+//
+//    private GridPane createBoardGrid() {
+//        GridPane boardGrid = new GridPane();
+//
+//        boardGrid.setAlignment(Pos.CENTER);
+//        boardGrid.setHgap(10);
+//        boardGrid.setVgap(10);
+//
+//        for (int row = 0; row < rows; row++) {
+//            for (int col = 0; col < cols; col++) {
+//                Circle circle = new Circle(30);
+//                circle.setFill(javafx.scene.paint.Color.TRANSPARENT);
+//                circle.setStroke(javafx.scene.paint.Color.WHITE);
+//                coinGrid[row][col] = circle;
+//
+//                StackPane cell = new StackPane(circle);
+//                cell.setPrefSize(70, 70);
+//
+//                cellGrid[row][col] = cell;
+//
+//                int currentCol = col;
+//                cell.setOnMouseClicked(e -> handleMove(currentCol));
+//
+//                boardGrid.add(cell, col, row);
+//            }
+//        }
+//
+//        return boardGrid;
+//    }
+//
+//    private void redrawBoard() {
+//        for (int row = 0; row < rows; row++) {
+//            for (int col = 0; col < cols; col++) {
+//                cellGrid[row][col].getChildren().clear(); // Clear previous icons
+//
+//                if (boardState[row][col] == 1) {
+//                    ImageView icon = new ImageView(playerIcon1);
+//                    icon.setFitHeight(60);
+//                    icon.setFitWidth(60);
+//                    cellGrid[row][col].getChildren().add(icon);
+//                } else if (boardState[row][col] == 2) {
+//                    ImageView icon = new ImageView(playerIcon2);
+//                    icon.setFitHeight(60);
+//                    icon.setFitWidth(60);
+//                    cellGrid[row][col].getChildren().add(icon);
+//                }
+//            }
+//        }
+//    }
+//
+//    private void handleMove(int col) {
+//        if (!player1.getIsTurn()) {
+//            System.out.println("Not your turn!");
+//            return;
+//        }
+//
+//        for (int row = rows - 1; row >= 0; row--) {
+//            if (boardState[row][col] == 0) {
+//                boardState[row][col] = player1.getIsTurn() ? 1 : 2;
+//
+//                Circle circle = coinGrid[row][col];
+//                circle.setVisible(false);
+//
+//                ImageView icon = new ImageView(playerIcon1);
+//                icon.setFitHeight(60);
+//                icon.setFitWidth(60);
+//                cellGrid[row][col].getChildren().add(icon);
+//                player1.setIsTurn(false);
+//                if (player2 != null) {
+//                    player2.setIsTurn(true);
+//                }
+//                playerTurnText.setText(player2.getUsername() + "'s Turn");
+//                break;
+//            }
+//        }
+//        System.out.println("client board update");
+//        player1.sendMessage(new Message("boardUpdate", boardState, player1.getUsername(), null));
+//    }
+//
+//    private void handleOpponentMove(int col) {
+//        for (int row = rows - 1; row >= 0; row--) {
+//            if (boardState[row][col] == 0) {
+//                boardState[row][col] = player1.getIsTurn() ? 2 : 1;
+//
+//                Circle circle = coinGrid[row][col];
+//                circle.setVisible(false);
+//
+//                ImageView icon = new ImageView(player1.getIsTurn() ? playerIcon1 : playerIcon2);
+//                icon.setFitHeight(60);
+//                icon.setFitWidth(60);
+//                cellGrid[row][col].getChildren().add(icon);
+//
+//                player1.setIsTurn(true);
+//                break;
+//            }
+//        }
+//    }
+//}

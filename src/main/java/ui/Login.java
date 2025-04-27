@@ -19,13 +19,20 @@ import javafx.scene.image.ImageView;
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import network.Client;
+import network.Player;
 
 
 public class Login {
 
     private Client client;
+    private Player player;
 
     public Login(Client client) {
+        this.client = client;
+    }
+
+    public Login(Player player, Client client) {
+        this.player = player;
         this.client = client;
     }
 
@@ -44,15 +51,21 @@ public class Login {
         Button login = new Button("Log In");
         login.getStyleClass().add("login-button");
 
+//        EVENT HANDLER: LOG IN AND CREATE PLAYER
         login.setOnAction(e -> {
             String usernameInput = username.getText().trim();
             if (usernameInput.isEmpty()) {
-                usernameInput = "Guest";
+                usernameInput = "Guest" + client.getClientCount();
             }
 
-            client.send("USERNAME:" + usernameInput);
+            String imgPath = "/images/apple.png";
 
-            Home home = new Home(client);
+
+//            Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String username, int column, ImageView icon, String gameStatus, Boolean isTurn
+            Player newPlayer = new Player(usernameInput, 0, imgPath, "not-started", false);
+            client.setPlayer(newPlayer);
+
+            Home home = new Home(newPlayer, client);
             SceneManager.switchTo(home.getRoot());
         });
 
@@ -60,7 +73,7 @@ public class Login {
         Button createAccount = new Button("Create Account Here.");
 
         createAccount.setOnAction( e -> {
-            SignUp signup = new SignUp(client);
+            SignUp signup = new SignUp(player, client);
             SceneManager.switchTo(signup.getRoot());
         });
 

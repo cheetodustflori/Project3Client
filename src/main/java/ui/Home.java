@@ -14,6 +14,8 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import network.Client;
+import network.Player;
+import ui.ChooseIcon;
 
 
 import java.time.LocalDateTime;
@@ -22,9 +24,11 @@ import java.time.format.DateTimeFormatter;
 
 public class Home {
 
-    private Client client;
+    Player player;
+    Client client;
 
-    public Home(Client client) {
+    public Home(Player player, Client client) {
+        this.player = player;
         this.client = client;
     }
 
@@ -37,7 +41,7 @@ public class Home {
         logoContainer.getStyleClass().add("home-logo");
 
         Text welcome = new Text("Welcome Back,");
-        Text username = new Text("@username");
+        Text username = new Text("@" + player.getUsername());
 
         welcome.getStyleClass().add("welcome-message");
         username.getStyleClass().add("welcome-username");
@@ -57,13 +61,13 @@ public class Home {
 //        EVENT HANDLER
 
         startGame.setOnAction(e-> {
-            ChooseIcon chooseIcon = new ChooseIcon(client);
+            ChooseIcon chooseIcon = new ChooseIcon(player, client);
             SceneManager.switchTo(chooseIcon.getRoot());
         });
 
         Button goBack = new Button("return");
         goBack.setOnAction(e-> {
-            Login login = new Login(client);
+            Login login = new Login(player, client);
             SceneManager.switchTo(login.getRoot());
         });
 

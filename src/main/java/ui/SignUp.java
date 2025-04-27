@@ -25,6 +25,7 @@ import javafx.scene.image.ImageView;
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import network.Client;
+import network.Player;
 
 
 import java.time.LocalDateTime;
@@ -34,8 +35,10 @@ import java.util.ArrayList;
 public class SignUp {
 
     private Client client;
+    private Player player;
 
-    public SignUp(Client client) {
+    public SignUp(Player player, Client client) {
+        this.player = player;
         this.client = client;
     }
 
@@ -53,6 +56,19 @@ public class SignUp {
         Button signup = new Button("Create Account");
         signup.getStyleClass().add("signup-button");
 
+//        EVENT HANDLER: SIGN UP + SEND PLAYER
+        signup.setOnAction(e-> {
+            String imgPath = "/images/apple.png";
+
+            String usernameInput = usernameText.toString();
+
+//            Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String username, int column, ImageView icon, String gameStatus, Boolean isTurn
+            Player newPlayer = new Player(usernameInput, 0, imgPath, "not-started", false);
+
+//            client.send("USERNAME:" + usernameInput);
+            client.sendPlayer(newPlayer);
+        });
+
         Text hasAccount = new Text ("Have an account?");
         Button logIn = new Button("Log In Here.");
         logIn.getStyleClass().add("log-in-link");
@@ -60,8 +76,10 @@ public class SignUp {
         hasAccountContainer.setSpacing(5);
         hasAccountContainer.setAlignment(Pos.CENTER);
 
+//        EVENT HANDLER: NAV TO LOG IN
+
         logIn.setOnAction( e -> {
-            Login login = new Login(client);
+            Login login = new Login(player, client);
             SceneManager.switchTo(login.getRoot());
         });
 

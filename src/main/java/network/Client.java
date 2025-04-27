@@ -87,6 +87,7 @@ public class Client extends Thread {
 				else if(msg.getType().equals("yourTurn")){
 					boolean isMyTurn = (Boolean)msg.getContent();
 					gamePlay.setMyTurn(isMyTurn);
+					System.out.println("YOUR TURN");
 				}
 				else if(msg.getType().equals("loginError")){
 					String message = msg.getContent().toString();

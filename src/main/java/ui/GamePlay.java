@@ -57,6 +57,8 @@ public class GamePlay {
 
     private boolean myTurn = false;
     public void setMyTurn(boolean turn){
+
+        System.out.println("MY TURN");
         this.myTurn = turn;
     }
 
